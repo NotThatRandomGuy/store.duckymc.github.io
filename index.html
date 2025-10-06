@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ducky MC Shop</title>
+  <link rel="icon" href="/img/DuckLogo.jpg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <h1>Ducky MC Shop</h1>
+    <p>Simple. Secure. Fast Checkout.</p>
+  </header>
+
+  <main class="content-bg">
+    <h2 class="section-title">Ranks</h2>
+    <div id="products">
+      
+      <!-- Product 1 -->
+      <div class="product">
+        <button class="like-btn" data-id="item1" aria-label="Like Duckling 1M">♥</button>
+        <span class="like-count">0</span>
+        <img src="https://via.placeholder.com/200x150" alt="Duckling 1M">
+        <h3>Duckling (1 Month)</h3>
+        <p class="price">$4.99</p>
+        <button class="open-modal" 
+          data-title="Duckling (1 Month)" 
+          data-price="$4.99" 
+          data-img="https://via.placeholder.com/200x150"
+          data-link="https://buy.stripe.com/test_examplelink1"
+          data-perks="+3 /sethome slots|/enderchest + /ec|/anvil|/grindstone|/craft (opening crafting table)|Queue skip|15 Second RTP cooldown|Cool duckling prefix and nametag :)|Custom chat color using &amp;">
+          Buy Now
+        </button>
+      </div>
+
+      <!-- Product 2 -->
+      <div class="product">
+        <button class="like-btn" data-id="item2" aria-label="Like Duckling Perm">♥</button>
+        <span class="like-count">0</span>
+        <img src="https://via.placeholder.com/200x150" alt="Duckling Perm">
+        <h3>Duckling (Permanent)</h3>
+        <p class="price">$14.99</p>
+        <button class="open-modal" 
+          data-title="Duckling (Permanent)" 
+          data-price="$14.99" 
+          data-img="https://via.placeholder.com/200x150"
+          data-link="https://buy.stripe.com/test_examplelink2"
+          data-perks="+3 /sethome slots|/enderchest + /ec|/anvil|/grindstone|/craft (opening crafting table)|Queue skip|15 Second RTP cooldown|Cool duckling prefix and nametag :)|Custom chat color using &amp;">
+          Buy Now
+        </button>
+      </div>
+
+      <!-- Product 3 -->
+      <div class="product">
+        <button class="like-btn" data-id="item3" aria-label="Like Custom Perm">♥</button>
+        <span class="like-count">0</span>
+        <img src="https://via.placeholder.com/200x150" alt="Custom Perm">
+        <h3>Custom (Permanent)</h3>
+        <p class="price">$24.99</p>
+        <button class="open-modal" 
+          data-title="Custom (Permanent)" 
+          data-price="$24.99" 
+          data-img="https://via.placeholder.com/200x150"
+          data-link="https://buy.stripe.com/test_examplelink3"
+          data-perks="ALL of the benefits of Duckling|Custom prefix to your liking|Custom rank color to your liking|Please don't dox anyone or use a curse for this">
+          Buy Now
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 My Shop — Powered by Stripe</p>
+  </footer>
+
+  <!-- 🔹 Modal HTML -->
+  <div id="productModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <span class="close-btn" role="button" aria-label="Close">&times;</span>
+      <img id="modalImg" src="" alt="Product Preview">
+      <h3 id="modalTitle"></h3>
+      <p id="modalPrice"></p>
+
+      <!-- formatted perks list will be injected here -->
+      <ul id="modalPerks" class="modal-perks" aria-labelledby="modalTitle"></ul>
+
+      <a id="modalLink" href="#" target="_blank" rel="noopener noreferrer">
+        <button>Buy Now</button>
+      </a>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    // Like Button System (LocalStorage)
+    document.querySelectorAll(".like-btn").forEach(btn => {
+      const id = btn.dataset.id;
+      const countEl = btn.nextElementSibling;
+      let count = parseInt(localStorage.getItem("likes-" + id) || 0, 10);
+      countEl.textContent = count;
+
+      if (localStorage.getItem("liked-" + id) === "true") {
+        btn.classList.add("liked");
+      }
+
+      btn.addEventListener("click", () => {
+        let liked = btn.classList.toggle("liked");
+        if (liked) { count++; } else { count = Math.max(0, count - 1); }
+        countEl.textContent = count;
+        localStorage.setItem("likes-" + id, count);
+        localStorage.setItem("liked-" + id, liked);
+      });
+    });
+
+    // Modal System
+    const modal = document.getElementById("productModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalPrice = document.getElementById("modalPrice");
+    const modalImg = document.getElementById("modalImg");
+    const modalLink = document.getElementById("modalLink");
+    const modalPerks = document.getElementById("modalPerks");
+    const closeBtn = document.querySelector(".close-btn");
+
+    // small helper to escape text (prevents accidental HTML interpretation)
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    document.querySelectorAll(".open-modal").forEach(button => {
+      button.addEventListener("click", () => {
+        // fill basic fields
+        modalTitle.textContent = button.dataset.title || '';
+        modalPrice.textContent = button.dataset.price || '';
+        modalImg.src = button.dataset.img || '';
+        modalImg.alt = button.dataset.title || 'Product image';
+        modalLink.href = button.dataset.link || '#';
+
+        // build perks list from pipe-separated data-perks
+        modalPerks.innerHTML = ''; // clear
+        const perksRaw = button.dataset.perks || '';
+        const perks = perksRaw ? perksRaw.split('|') : [];
+        perks.forEach(p => {
+          const li = document.createElement('li');
+          li.innerHTML = escapeHtml(p.trim());
+          modalPerks.appendChild(li);
+        });
+
+        // show modal
+        modal.style.display = "flex";
+        modal.setAttribute('aria-hidden', 'false');
+      });
+    });
+
+    // close handlers
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      modal.setAttribute('aria-hidden', 'true');
+    });
+
+    window.addEventListener("click", e => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // close on Esc
+    window.addEventListener("keydown", e => {
+      if (e.key === "Escape" && modal.style.display === "flex") {
+        modal.style.display = "none";
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  </script>
+</body>
+</html>
+>
