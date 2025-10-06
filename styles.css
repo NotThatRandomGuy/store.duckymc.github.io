@@ -40,11 +40,12 @@ body {
 
 /* Background only for main content */
 .content-bg {
-  background-image: url('img/background.png') no-repeat center center;
+  background: url('img/background.png') no-repeat center center;
   background-size: cover;
   background-attachment: scroll;
   padding: 40px 20px;
 }
+
 
 /* Product Grid with fallback */
 #products {
@@ -219,6 +220,7 @@ footer {
   cursor: pointer;
   font-weight: bold;
 }
+
 
 
 
